@@ -18,14 +18,14 @@ public class Apl {
 		httpHeader.add(new KeyValuePair("Content-Type","text/html"));
 		header.add(new KeyValuePair("title","eerste html pagina"));
 		body.add(new KeyValuePair("h1","eerste html pagina"));
+		Html html = new Html(header,body);
+		httpHeader.add(new KeyValuePair("Content-Length",html.toString().getBytes().length + ""));
+		HttpResponseHeader headers = new HttpResponseHeader(200,"OK",httpHeader);
+		String htmlString = headers.toString() + html.toString();
 		while(true){
 			Socket userSocket = socket.accept();
-			PrintWriter writer = new PrintWriter(userSocket.getOutputStream());
-			Html html = new Html(header,body);
-			httpHeader.add(new KeyValuePair("Content-Length",html.toString().getBytes().length + ""));
-			HttpResponseHeader headers = new HttpResponseHeader(200,"OK",httpHeader);
-			writer.print(headers.toString() + html.toString() );
-			writer.flush();
+			ClientThread thread = new ClientThread(userSocket,htmlString);
+		
 		}
 		
 	}
