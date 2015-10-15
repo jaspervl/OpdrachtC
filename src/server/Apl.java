@@ -1,10 +1,14 @@
 package server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Scanner;
+
+import model.Html;
+import model.HttpResponseHeader;
+import model.KeyValuePair;
 
 public class Apl {
 
@@ -23,8 +27,14 @@ public class Apl {
 		HttpResponseHeader headers = new HttpResponseHeader(200,"OK",httpHeader);
 		String htmlString = headers.toString() + html.toString();
 		while(true){
+			
 			Socket userSocket = socket.accept();
+			Scanner in = new Scanner(userSocket.getInputStream());
+			while(in.hasNextLine()){
+				System.out.println(in.nextLine());
+			}
 			ClientThread thread = new ClientThread(userSocket,htmlString);
+			thread.run();
 		
 		}
 		

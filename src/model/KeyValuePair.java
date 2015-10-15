@@ -1,4 +1,4 @@
-package server;
+package model;
 
 public final class KeyValuePair {
 	private final String KEY;
