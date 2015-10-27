@@ -1,5 +1,6 @@
 package server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,24 +17,10 @@ public class Apl {
 	
 	public static void main(String[] args) throws IOException{
 		socket = new ServerSocket(8080);
-		ArrayList<KeyValuePair> header = new ArrayList<>();
-		ArrayList<KeyValuePair> body = new ArrayList<>();
-		ArrayList<KeyValuePair> httpHeader = new ArrayList<>();
-		httpHeader.add(new KeyValuePair("Content-Type","text/html"));
-		header.add(new KeyValuePair("title","eerste html pagina"));
-		body.add(new KeyValuePair("h1","eerste html pagina"));
-		Html html = new Html(header,body);
-		httpHeader.add(new KeyValuePair("Content-Length",html.toString().getBytes().length + ""));
-		HttpResponseHeader headers = new HttpResponseHeader(200,"OK",httpHeader);
-		String htmlString = headers.toString() + html.toString();
+		Html html = new Html(200,"OK",new File("index.html"),new KeyValuePair("Content-Type","text/html"));
 		while(true){
-			
 			Socket userSocket = socket.accept();
-			Scanner in = new Scanner(userSocket.getInputStream());
-			while(in.hasNextLine()){
-				System.out.println(in.nextLine());
-			}
-			ClientThread thread = new ClientThread(userSocket,htmlString);
+			ClientThread thread = new ClientThread(userSocket);
 			thread.run();
 		
 		}
