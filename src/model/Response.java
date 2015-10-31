@@ -68,7 +68,7 @@ public final class Response {
 		str += "Content-Type: " + file.getMIME() + "\r\n";
 		this.HTTP_HEADERS = str + addingHeaders(httpHeaders);
 		BODY = file.getContent();
-		System.out.println(this.toString());
+		System.out.println("\nBEGIN RESPONSE\n" + this.toString() + "\n");
 	}
 
 	/**
@@ -82,6 +82,8 @@ public final class Response {
 		str += "Content-Length: " + 0 + "\r\n";
 		this.HTTP_HEADERS = str + addingHeaders(httpHeaders);
 		BODY = ""; // Empty
+		
+		System.out.println("\nBEGIN RESPONSE\n" + this.toString() + "\n");
 	}
 
 	private String addingHeaders(KeyValuePair... httpHeaders) {

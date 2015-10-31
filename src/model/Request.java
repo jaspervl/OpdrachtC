@@ -2,6 +2,7 @@ package model;
 
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -22,7 +23,7 @@ public class Request {
 	private final String PATH;
 	private final String REQUEST_METHOD;
 	private final String HTTP_VERSION;
-	private final HashMap<String,String[]> headers;
+	private final HashMap<String,String> headers;
 	
 	public Request(String str){
 		headers = new HashMap<>();
@@ -31,17 +32,42 @@ public class Request {
 		 */
 		try(Scanner lineScanner = new Scanner(str)){
 		REQUEST_METHOD = lineScanner.next();
-		PATH = lineScanner.next().substring(1);
-		HTTP_VERSION = lineScanner.next();
-		while(lineScanner.hasNext())
-		headers.put(lineScanner.next(), lineScanner.next().split(","));
+		String redirect = lineScanner.next().substring(1);
+		if(redirect.equals("")){
+			PATH = "index.html";
 		}
-		
+		else{
+			PATH = redirect;
+		}
+		HTTP_VERSION = lineScanner.next();
+		while(lineScanner.hasNextLine()){
+		String line = lineScanner.nextLine();
+		String[] elements = line.split(" ");
+		headers.put(elements[0], line.substring(elements[0].length()));
+		}
+		for(Map.Entry<String,String> entry: headers.entrySet()){
+			System.out.println(entry.getKey() + entry.getValue());
+		}
+	}
 	}
 
+	public String[] generateArray(int offset,String... arr){
+		String[] newArr = new String[arr.length - offset];
+		for(int i = 0;i < newArr.length;i++){
+			newArr[i] = arr[i + offset];
+		}
+		return newArr;
+		
+	}
 	
-	public String[] getHeader(String name){
-		return headers.get(name);
+	public String getHeader(String name){
+		return headers.get(name + ":");
+	}
+	
+
+	public String getAcceptedMime(){
+		return "";
+		
 	}
 	
 	/*

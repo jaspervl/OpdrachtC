@@ -1,3 +1,7 @@
 h1{
-	font-color:red;
+	color:red;
+}
+
+div{
+	position:relative;
 }

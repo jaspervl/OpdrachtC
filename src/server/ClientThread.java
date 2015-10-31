@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Base64;
 
 import model.FileParse;
+import model.KeyValuePair;
 import model.Request;
 import model.Response;
 
@@ -44,11 +46,38 @@ public class ClientThread extends Thread {
 				 * PARSE THE STRING TO A REQUEST OBJECT
 				 */
 				Request request = new Request(req);
+				Response response;
 				/*
 				 * RETRIEVE PATH FROM REQUEST EN SEARCH FOR IT WITHIN OUR FILE SYSTEM
 				 */
-					FileParse parse = new FileParse(new File(request.getPath()));
-					Response response = new Response(parse.getStatus(),parse);
+					File file = new File(request.getPath());
+					int statusCode = 200;
+					if(file.exists()){
+						statusCode = 404;
+					}
+					boolean found = false;
+					for(File f : file.getParentFile().listFiles()){
+						System.out.println(f.getName());
+						if(f.getName().equals(".htaccess")){
+							String header = request.getHeader("Authorization");
+							if(header != null){
+								String value = header.split(" ")[0];
+								System.out.println("VALUE :" + value);
+								value = new String(Base64.getDecoder().decode(value));
+								System.out.println(value);
+							}
+							found = true;
+							statusCode = 401;
+						}
+					}
+					if(found){
+						response = new Response(statusCode,new KeyValuePair("WWW-Authenticate","basic realm=\"MY AWESOME SITE\""));
+					}
+					else{
+						FileParse parse = new FileParse(file);
+						response = new Response(parse.getStatus(),parse);
+					}
+					
 					sendPage(response);
 			
 				
