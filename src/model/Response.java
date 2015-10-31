@@ -1,20 +1,27 @@
 package model;
 
-import java.io.File;
 import java.util.HashMap;
 
+/**
+ * Our model response class.
+ * It'll try to form an appropiate response according to the specified parameters
+ * 
+ * 
+ * @author jasper
+ *
+ */
 public final class Response {
 
-	private static final HashMap<String, String> HTTP_PROTOCOL = new HashMap<>();
-	
 	/*
 	 * Declaring finals ensure immutability
 	 */
+	private static final HashMap<String, String> HTTP_PROTOCOL = new HashMap<>();
 	private final String HTTP_HEADERS;
 	private final String BODY;
 
 	/*
-	 * Assign the status codes of the protocol
+	 * Assign the status codes of the protocol and their custom phrases
+	 * We include these in 
 	 */
 	static {
 		HTTP_PROTOCOL.put("100", "Continue");
@@ -34,7 +41,7 @@ public final class Response {
 		HTTP_PROTOCOL.put("305", "Use Proxy");
 		HTTP_PROTOCOL.put("306", "(Unused)");
 		HTTP_PROTOCOL.put("307", "Temporary Redirect");
-		HTTP_PROTOCOL.put("400", "Bad A");
+		HTTP_PROTOCOL.put("400", "Bad Request");
 		HTTP_PROTOCOL.put("401", "Unauthorized");
 		HTTP_PROTOCOL.put("402", "Payment Required");
 		HTTP_PROTOCOL.put("403", "Forbidden");
@@ -61,14 +68,23 @@ public final class Response {
 
 	}
 
+	/**
+	 * Response that handles responses that include a body (FILE) 
+	 * 
+	 * @param status the calling code must specify what the status code is
+	 * @param file the content which was requested for
+	 * @param httpHeaders the additional headers like authorization
+	 */
 	public Response(int status, FileParse file, KeyValuePair... httpHeaders) {
 		String statusCode = status + "";
 		String str = "HTTP/1.1 " + statusCode + " " + HTTP_PROTOCOL.get(statusCode) + "\r\n";
-		str += "Content-Length: " + file.getSize() + "\r\n";
-		str += "Content-Type: " + file.getMIME() + "\r\n";
+		str += "Content-Length: " + file.getSize() + "\r\n"; // Essential headers added
+		if(file.getMIME() != null){   // if the mime isn't known we'll let the client decide what to do with it
+		str += "Content-Type: " + file.getMIME() + "\r\n";  // Included a file so we're including the mime type
+		}
 		this.HTTP_HEADERS = str + addingHeaders(httpHeaders);
 		BODY = file.getContent();
-		System.out.println("\nBEGIN RESPONSE\n" + this.toString() + "\n");
+		System.out.println("\n" + this.toString() + "\n");
 	}
 
 	/**
@@ -85,7 +101,14 @@ public final class Response {
 		
 		System.out.println("\nBEGIN RESPONSE\n" + this.toString() + "\n");
 	}
-
+	
+	
+	/**
+	 * Helper method to apply the headers to the response. 
+	 * 
+	 * @param httpHeaders key value pairs of headers
+	 * @return A string containing the headers correctly formatted
+	 */
 	private String addingHeaders(KeyValuePair... httpHeaders) {
 		String str = "";
 		for (KeyValuePair header : httpHeaders) {
@@ -95,6 +118,9 @@ public final class Response {
 		return str + "\r\n";
 	}
 
+	/**
+	 * Overriding the toString method for inputstreams
+	 */
 	@Override
 	public String toString() {
 		return HTTP_HEADERS + BODY;
